@@ -27,14 +27,15 @@ class ShaderMainPanel (bpy.types.Panel):
         row = layout.row()
         
         row.label(text = "Select a Shader to be added.")
-        row.operator("")
+        row = layout.row() 
+        row.operator('shader.diamond_operator')
         
         
         
 class SHADER_OT_DIAMOND(bpy.types.Operator):
     """Create a Custom Operator for the Diamond Shader"""
     bl_label = "Diamond" 
-    bl_idname = "shader.diamond.operator"
+    bl_idname = 'shader.diamond_operator'
     
     def execute(self, context):
         """Creates a new shader called Diamond"""
@@ -44,7 +45,7 @@ class SHADER_OT_DIAMOND(bpy.types.Operator):
         ## Creating a New Shader and calling it Diamond
         material_diamond = bpy.data.materials.new(name = "Diamond")
         ## Enabling Use Nodes
-        material_diamond.use_node = True
+        material_diamond.use_nodes = True
         
         ## Removes the automatically loaded "Principled BSDF" node
         material_diamond.node_tree.nodes.remove(material_diamond.node_tree.nodes.get("Principled BSDF"))
@@ -119,7 +120,7 @@ class SHADER_OT_DIAMOND(bpy.types.Operator):
         ### MIX
         
         ## Create the Mix Shader Node and Reference it as "Mix1"
-        mix1_node = material_diamond_diamond.node_tree.nodes.new("ShaderNodeMixShader")
+        mix1_node = material_diamond.node_tree.nodes.new("ShaderNodeMixShader")
         ## Set location of node
         mix1_node.location = (200,0)
         ## Deselect the Node
@@ -142,13 +143,18 @@ class SHADER_OT_DIAMOND(bpy.types.Operator):
         
         material_diamond.node_tree.links.new(mix1_node.outputs[0], material_output.inputs[0])
         
+        bpy.context.object.active_material = material_diamond
         
+        return {"FINISHED"}
         
 def register():
     bpy.utils.register_class(ShaderMainPanel)
+    bpy.utils.register_class(SHADER_OT_DIAMOND)
+    
     
 def unregister():
     bpy.utils.unregister_class(ShaderMainPanel)
+    bpy.utils.unregister_class(SHADER_OT_DIAMOND)
 
 if __name__ == "__main__":
     register()
