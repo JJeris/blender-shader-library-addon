@@ -39,7 +39,7 @@ class SHADER_OT_DIAMOND(bpy.types.Operator):
     def execute(self, context):
         """Creates a new shader called Diamond"""
         
-        ##SET UP
+        ###SET UP
         
         ## Creating a New Shader and calling it Diamond
         material_diamond = bpy.data.materials.new(name = "Diamond")
@@ -84,12 +84,66 @@ class SHADER_OT_DIAMOND(bpy.types.Operator):
         glass3_node.inputs[2].default_value = 1.500 ## IOR - Index of refraction
         
         
+        
+        ### ADD NODES
+        
+        ## Create the Add Shader Node and Reference it as "Add1"
+        add1_node = material_diamond.node_tree.nodes.new(type = "ShaderNodeAddShader")
+        add1_node.location = (-400,-50)
+        add1_node.label = "Add 1"
+        add1_node.hide = True
+        add1_node.select = False
+
+        ## Create the Add Shader Node and Reference it as "Add2"
+        add2_node = material_diamond.node_tree.nodes.new(type = "ShaderNodeAddShader")
+        add2_node.location = (-100,0)
+        add2_node.label = "Add 2"
+        add2_node.hide = True
+        add2_node.select = False
 
 
+        ### GLASS4
+        ## Creating the Glass Node and Reference it as "glass4"
+        glass4_node = material_diamond.node_tree.nodes.new(type = "ShaderNodeBsdfGlass")
+        ## Set location of node
+        glass4_node.location = (-150,-150)
+        ## Setting the Default Color
+        glass3_node.inputs[0].default_value = (1, 1, 1, 1) ## RGBA. Red
+        ## Setting the Default IOR Value
+        glass3_node.inputs[2].default_value = 1.450 ## IOR - Index of refraction
+        ## Deselect the node
+        glass4_node.select = False
+        
+        
+        
+        ### MIX
+        
+        ## Create the Mix Shader Node and Reference it as "Mix1"
+        mix1_node = material_diamond_diamond.node_tree.nodes.new("ShaderNodeMixShader")
+        ## Set location of node
+        mix1_node.location = (200,0)
+        ## Deselect the Node
+        mix1_node.select - False
+        
+        
+        ### Linking
+        
+        material_diamond.node_tree.links.new(glass1_node.outputs[0], add1_node.inputs[0])
+        
+        material_diamond.node_tree.links.new(glass2_node.outputs[0], add1_node.inputs[1])
 
+        material_diamond.node_tree.links.new(add1_node.outputs[0], add2_node.inputs[0])
+        
+        material_diamond.node_tree.links.new(glass3_node.outputs[0], add2_node.inputs[1])
 
-
-
+        material_diamond.node_tree.links.new(add2_node.outputs[0], mix1_node.inputs[1])
+        
+        material_diamond.node_tree.links.new(glass4_node.outputs[0], mix1_node.inputs[2])
+        
+        material_diamond.node_tree.links.new(mix1_node.outputs[0], material_output.inputs[0])
+        
+        
+        
 def register():
     bpy.utils.register_class(ShaderMainPanel)
     
